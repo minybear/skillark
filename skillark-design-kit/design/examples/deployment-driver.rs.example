@@ -1,0 +1,48 @@
+use std::path::{Path, PathBuf};
+
+pub trait DeploymentDriver: Send + Sync {
+    fn mode(&self) -> InstallMode;
+    fn preflight(&self, source: &Path, target: &Path) -> PreflightResult;
+    fn install(&self, request: InstallRequest) -> Result<InstallResult, DeploymentError>;
+    fn verify(&self, deployment: &DeploymentRecord) -> Result<VerifyResult, DeploymentError>;
+    fn uninstall(&self, deployment: &DeploymentRecord) -> Result<(), DeploymentError>;
+}
+
+pub enum InstallMode {
+    Copy,
+    Junction,
+}
+
+pub struct InstallRequest {
+    pub operation_id: String,
+    pub source: PathBuf,
+    pub target: PathBuf,
+    pub expected_hash: String,
+    pub allow_replace_managed: bool,
+}
+
+pub struct PreflightResult {
+    pub conflict: ConflictKind,
+    pub writable: bool,
+    pub warnings: Vec<String>,
+}
+
+pub struct InstallResult {
+    pub deployed_hash: Option<String>,
+    pub backup_path: Option<PathBuf>,
+}
+
+pub enum ConflictKind {
+    None,
+    ManagedSame,
+    ManagedOutdated,
+    ManagedModified,
+    UnmanagedSkill,
+    UnmanagedDirectory,
+    FileConflict,
+    PermissionDenied,
+}
+
+pub struct DeploymentRecord;
+pub struct VerifyResult;
+pub struct DeploymentError;

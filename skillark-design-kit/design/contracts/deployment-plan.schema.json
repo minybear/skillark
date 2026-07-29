@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeploymentPlan",
+  "type": "object",
+  "required": ["operationId", "skillVersionId", "targets", "requiresConfirmation"],
+  "properties": {
+    "operationId": {"type": "string"},
+    "skillVersionId": {"type": "string"},
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["agentId", "workspaceId", "targetPath", "mode", "conflict"],
+        "properties": {
+          "agentId": {"type": "string"},
+          "workspaceId": {"type": "string"},
+          "targetPath": {"type": "string"},
+          "mode": {"enum": ["copy", "junction"]},
+          "conflict": {
+            "enum": [
+              "none",
+              "managed_same",
+              "managed_outdated",
+              "managed_modified",
+              "unmanaged_skill",
+              "unmanaged_directory",
+              "file_conflict",
+              "permission_denied"
+            ]
+          },
+          "warnings": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "requiresConfirmation": {"type": "boolean"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}

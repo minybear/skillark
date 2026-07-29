@@ -1,0 +1,50 @@
+use std::path::{Path, PathBuf};
+
+pub trait AgentAdapter: Send + Sync {
+    fn kind(&self) -> AgentKind;
+    fn display_name(&self) -> &'static str;
+    fn detect(&self, context: &DetectionContext) -> Vec<AgentCandidate>;
+    fn validate_configuration(&self, candidate: &AgentCandidate) -> ValidationResult;
+    fn global_skill_path(&self, candidate: &AgentCandidate) -> Option<PathBuf>;
+    fn project_skill_path(
+        &self,
+        candidate: &AgentCandidate,
+        project_root: &Path,
+    ) -> Option<PathBuf>;
+}
+
+#[derive(Clone, Debug)]
+pub enum AgentKind {
+    ClaudeCode,
+    Cursor,
+    Codex,
+    WorkBuddy,
+    Custom(String),
+}
+
+pub struct DetectionContext {
+    pub home_dir: PathBuf,
+    pub path_entries: Vec<PathBuf>,
+    pub running_processes: Vec<String>,
+}
+
+pub struct AgentCandidate {
+    pub kind: AgentKind,
+    pub confidence: u8,
+    pub executable_path: Option<PathBuf>,
+    pub global_skill_path: Option<PathBuf>,
+    pub signals: Vec<DetectionSignal>,
+}
+
+pub struct DetectionSignal {
+    pub signal_type: String,
+    pub matched: bool,
+    pub weight: i32,
+    pub detail: Option<String>,
+}
+
+pub struct ValidationResult {
+    pub valid: bool,
+    pub writable: bool,
+    pub warnings: Vec<String>,
+}

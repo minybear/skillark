@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SkillManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "format", "files", "contentHash"],
+  "properties": {
+    "name": {"type": "string", "minLength": 1},
+    "description": {"type": "string"},
+    "format": {"enum": ["agent-skills", "workbuddy", "unknown"]},
+    "contentHash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "size", "sha256"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {"type": "string"},
+          "size": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "metadata": {"type": "object"},
+    "warnings": {"type": "array", "items": {"type": "string"}}
+  }
+}
