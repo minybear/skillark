@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepositoryLocator",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "provider",
+    "remote",
+    "resolvedRevision",
+    "subpath"
+  ],
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "remote": {
+      "type": "string"
+    },
+    "requestedRevision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "resolvedRevision": {
+      "type": "string"
+    },
+    "subpath": {
+      "type": "string"
+    }
+  }
+}

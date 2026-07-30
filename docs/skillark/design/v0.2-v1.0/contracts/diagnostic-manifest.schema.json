@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DiagnosticManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "appVersion",
+    "generatedAt",
+    "includedCategories",
+    "redactionVersion"
+  ],
+  "properties": {
+    "appVersion": {
+      "type": "string"
+    },
+    "generatedAt": {
+      "type": "string"
+    },
+    "includedCategories": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "redactionVersion": {
+      "type": "string"
+    },
+    "userReviewed": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CompatibilityReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "skillVersionId",
+    "agentInstallationId",
+    "status",
+    "evidence"
+  ],
+  "properties": {
+    "skillVersionId": {
+      "type": "string"
+    },
+    "agentInstallationId": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "native",
+        "convertible",
+        "partial",
+        "incompatible",
+        "unknown"
+      ]
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  }
+}

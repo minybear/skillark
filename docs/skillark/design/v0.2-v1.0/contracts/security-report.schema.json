@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SecurityReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contentHash",
+    "scannerVersion",
+    "status",
+    "findings"
+  ],
+  "properties": {
+    "contentHash": {
+      "type": "string"
+    },
+    "scannerVersion": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "complete",
+        "incomplete",
+        "failed"
+      ]
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}

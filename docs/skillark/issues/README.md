@@ -7,6 +7,7 @@
 | Issue | 模块 | 剩余条件 |
 |---|---|---|
 | [Junction 在 cargo test 父进程下被 EDR 拦截](open/ISSUE-20260728-junction-edr-block-under-cargo-test.md) | deployment | UI Copy 降级已完成；待独立 Windows 环境运行 2 个 ignored 测试 |
+| [v0.2 设计草案 sources 表与 v0.1 已发布库冲突](open/ISSUE-20260730-v0.2-sources-migration-conflict.md) | design/v0.2 | v0.2 立项时确定 ALTER 或关联表方案，迁移在真实 v0.1 库副本验证 |
 
 ## 已关闭
 

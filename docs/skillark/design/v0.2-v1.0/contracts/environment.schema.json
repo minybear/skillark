@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Environment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "identity",
+    "status"
+  ],
+  "properties": {
+    "kind": {
+      "enum": [
+        "windows",
+        "wsl",
+        "macos"
+      ]
+    },
+    "identity": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "available",
+        "stopped",
+        "unavailable",
+        "unsupported"
+      ]
+    },
+    "capabilities": {
+      "type": "object"
+    }
+  }
+}

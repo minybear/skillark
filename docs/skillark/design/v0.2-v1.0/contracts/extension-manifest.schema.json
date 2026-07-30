@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SkillArkExtensionManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "apiVersion",
+    "kind",
+    "entrypoint",
+    "permissions"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "apiVersion": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "connector",
+        "agent-adapter",
+        "scanner-rule"
+      ]
+    },
+    "entrypoint": {
+      "type": "string"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "signature": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  }
+}

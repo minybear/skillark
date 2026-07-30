@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InstallPlan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "steps"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "requiresConfirmation"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "check_binary",
+              "download",
+              "run_process",
+              "set_secret_reference",
+              "copy_file"
+            ]
+          },
+          "requiresConfirmation": {
+            "type": "boolean"
+          },
+          "executable": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "workingDirectory": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

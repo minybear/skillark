@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SupportMatrixEntry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "platform",
+    "agent",
+    "status",
+    "testedAt"
+  ],
+  "properties": {
+    "platform": {
+      "type": "string"
+    },
+    "agent": {
+      "type": "string"
+    },
+    "agentVersionRange": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "supported",
+        "preview",
+        "unsupported",
+        "unknown"
+      ]
+    },
+    "testedAt": {
+      "type": "string"
+    },
+    "evidenceRef": {
+      "type": "string"
+    }
+  }
+}
