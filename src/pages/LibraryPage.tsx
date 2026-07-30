@@ -2,11 +2,13 @@ import { useCallback, useEffect, useState } from "react";
 import {
   deleteSkill,
   getSkillDetail,
+  importLinkCandidate,
   importSkillFromDirectory,
   importSkillFromZip,
   listSkills,
+  previewLink,
 } from "../api/library";
-import type { Skill, SkillDetail } from "../shared/library";
+import type { Skill, SkillDetail, LinkPreview } from "../shared/library";
 import { I18N, type Lang, type BiStr, pick } from "../shared/i18n";
 
 type Props = {
@@ -27,8 +29,10 @@ export default function LibraryPage({ lang, onDeploy }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [dirPath, setDirPath] = useState("");
   const [zipPath, setZipPath] = useState("");
+  const [linkUrl, setLinkUrl] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [detail, setDetail] = useState<SkillDetail | null>(null);
+  const [linkPreview, setLinkPreview] = useState<LinkPreview | null>(null);
 
   const refresh = useCallback(async () => {
     setLoading(true);
@@ -85,6 +89,36 @@ export default function LibraryPage({ lang, onDeploy }: Props) {
     }
   }
 
+  async function doPreviewLink() {
+    if (!linkUrl.trim()) return;
+    setBusy("link");
+    setError(null);
+    setLinkPreview(null);
+    try {
+      setLinkPreview(await previewLink(linkUrl.trim()));
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function doImportLinkCandidate(index: number) {
+    if (!linkPreview) return;
+    setBusy("importing");
+    setError(null);
+    try {
+      await importLinkCandidate(linkPreview.token, index);
+      setLinkPreview(null);
+      setLinkUrl("");
+      await refresh();
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(null);
+    }
+  }
+
   return (
     <section className="content page page-library">
       <header className="page-head">
@@ -130,6 +164,26 @@ export default function LibraryPage({ lang, onDeploy }: Props) {
           onClick={() => doImport("zip", zipPath)}
         >
           {busy === "zip" ? L(lang, I18N.importing) : L(lang, I18N.importZip)}
+        </button>
+      </div>
+
+      <div className="import-row">
+        <label className="field">
+          <span>{L(lang, I18N.importLink)}</span>
+          <input
+            type="text"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder={L(lang, I18N.linkPlaceholder)}
+          />
+        </label>
+        <button
+          type="button"
+          className="btn"
+          disabled={busy !== null || !linkUrl.trim()}
+          onClick={() => void doPreviewLink()}
+        >
+          {busy === "link" ? L(lang, I18N.previewing) : L(lang, I18N.previewLink)}
         </button>
       </div>
 
@@ -224,6 +278,71 @@ export default function LibraryPage({ lang, onDeploy }: Props) {
             </div>
             <footer className="wizard-foot">
               <button type="button" className="btn" onClick={() => setDetail(null)}>
+                {L(lang, I18N.cancel)}
+              </button>
+            </footer>
+          </div>
+        </div>
+      )}
+
+      {linkPreview && (
+        <div
+          className="wizard-overlay"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setLinkPreview(null)}
+        >
+          <div className="wizard skill-detail" onClick={(e) => e.stopPropagation()}>
+            <header className="wizard-head">
+              <span className="eyebrow">{L(lang, I18N.linkPreviewHeading)}</span>
+              <h2>{L(lang, I18N.importLink)}</h2>
+              <button
+                type="button"
+                className="wizard-close"
+                onClick={() => setLinkPreview(null)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </header>
+            <div className="wizard-body">
+              <p className="muted">
+                <strong>{L(lang, I18N.linkRemote)}:</strong> {linkPreview.remote}
+                <br />
+                <strong>{L(lang, I18N.linkRevision)}:</strong>{" "}
+                <code>{linkPreview.resolvedRevision.slice(0, 12)}</code>
+              </p>
+              {linkPreview.candidates.length === 0 ? (
+                <p className="muted">{L(lang, I18N.linkNoCandidates)}</p>
+              ) : (
+                <ul className="lib-list">
+                  {linkPreview.candidates.map((c, i) => (
+                    <li key={`${c.name}-${i}`} className="lib-row">
+                      <div className="lib-row-main">
+                        <strong>{c.name}</strong>
+                        <code className="lib-canonical">{c.relativePath || "/"}</code>
+                        <span className="lib-meta">
+                          {c.version && <span>{L(lang, I18N.versionLabel)}: {c.version}</span>}
+                        </span>
+                        {c.description && <p className="muted">{c.description}</p>}
+                      </div>
+                      <div className="lib-row-actions">
+                        <button
+                          type="button"
+                          className="btn btn-primary"
+                          disabled={busy !== null}
+                          onClick={() => void doImportLinkCandidate(i)}
+                        >
+                          {busy === "importing" ? L(lang, I18N.importing) : L(lang, I18N.importSelected)}
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <footer className="wizard-foot">
+              <button type="button" className="btn" onClick={() => setLinkPreview(null)}>
                 {L(lang, I18N.cancel)}
               </button>
             </footer>

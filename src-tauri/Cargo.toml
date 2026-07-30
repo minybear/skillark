@@ -27,6 +27,9 @@ thiserror = "2"
 uuid = { version = "1", features = ["serde", "v7", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 zip = "2"
+# v0.2 Link Bridge: fetch Git repositories (libgit2). On Windows libgit2 uses the
+# native Schannel TLS backend, so no OpenSSL is required.
+git2 = "0.19"
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = [

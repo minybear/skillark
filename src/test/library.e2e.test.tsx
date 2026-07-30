@@ -145,7 +145,7 @@ describe("LibraryPage interaction E2E", () => {
 
     render(<LibraryPage lang="en" onDeploy={noopDeploy} />);
     await screen.findByText("My Skill");
-    await userEvent.click(screen.getByRole("button", { name: /view/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^view$/i }));
 
     const dialog = await screen.findByRole("dialog");
     expect(within(dialog).getByText("scripts/run.sh")).toBeInTheDocument();
@@ -178,5 +178,54 @@ describe("LibraryPage interaction E2E", () => {
     await userEvent.type(dirInput, "D:/bad");
     await userEvent.click(screen.getAllByRole("button", { name: /import/i })[0]);
     expect(await screen.findByText(/SKILL.md not found/i)).toBeInTheDocument();
+  });
+
+  // ───── v0.2 Link Bridge: paste link → preview → import ────────────────────
+
+  it("previews a git link then imports the chosen candidate", async () => {
+    let skills: Skill[] = [];
+    const importedCandidates: number[] = [];
+    mockIPC((cmd) => {
+      switch (cmd) {
+        case "list_skills":
+          return skills;
+        case "preview_link":
+          return {
+            token: "tok-1",
+            remote: "acme/cool-skill",
+            resolvedRevision: "abc123def4567890",
+            candidates: [
+              {
+                name: "cool-skill",
+                version: "1.2.0",
+                description: "from git",
+                relativePath: "skills/cool",
+              },
+            ],
+          };
+        case "import_link_candidate": {
+          importedCandidates.push(0);
+          skills = [makeSkill()];
+          return undefined;
+        }
+        default:
+          return undefined;
+      }
+    });
+
+    render(<LibraryPage lang="en" onDeploy={noopDeploy} />);
+    await screen.findByText(/no skills|empty/i);
+
+    const linkInput = screen.getByPlaceholderText(/github\.com/i);
+    await userEvent.type(linkInput, "https://github.com/acme/cool-skill");
+    await userEvent.click(screen.getByRole("button", { name: /^preview$/i }));
+
+    // Candidate appears in the preview dialog.
+    expect(await screen.findByText("cool-skill")).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /^import$/i }));
+
+    await waitFor(() => expect(importedCandidates).toEqual([0]));
+    // Skill list refreshed after import.
+    expect(await screen.findByText("My Skill")).toBeInTheDocument();
   });
 });

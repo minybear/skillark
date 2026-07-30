@@ -430,3 +430,73 @@ pub async fn list_skill_versions(
         })
         .collect())
 }
+
+// ===== v0.2 Link Bridge =====
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkCandidateDto {
+    pub name: String,
+    pub version: String,
+    pub description: String,
+    pub relative_path: String,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LinkPreviewDto {
+    /// One-time token; the UI sends it back with the chosen candidate index.
+    pub token: String,
+    pub remote: String,
+    pub resolved_revision: String,
+    pub candidates: Vec<LinkCandidateDto>,
+}
+
+#[tauri::command]
+pub async fn preview_link(
+    state: tauri::State<'_, AppState>,
+    link: String,
+) -> Result<LinkPreviewDto, String> {
+    let service = crate::application::link_bridge::LinkImportService::new(
+        state.pool.clone(),
+        state.vault_path.clone(),
+        state.fetch_cache_root.clone(),
+    );
+    let preview = service.preview(&link).await?;
+    let remote = preview.locator.display_label();
+    let resolved_revision = preview.resolved_revision.clone();
+    let candidates = preview
+        .candidates
+        .iter()
+        .map(|c| LinkCandidateDto {
+            name: c.manifest.name.clone(),
+            version: c.manifest.version.clone(),
+            description: c.manifest.description.clone(),
+            relative_path: c.relative_path.clone(),
+        })
+        .collect();
+    let token = state.store_link_preview(preview);
+    Ok(LinkPreviewDto {
+        token,
+        remote,
+        resolved_revision,
+        candidates,
+    })
+}
+
+#[tauri::command]
+pub async fn import_link_candidate(
+    state: tauri::State<'_, AppState>,
+    token: String,
+    candidate_index: usize,
+) -> Result<crate::application::import_skill::ImportOutcome, String> {
+    let preview = state
+        .take_link_preview(&token)
+        .ok_or_else(|| "preview expired or already imported".to_string())?;
+    let service = crate::application::link_bridge::LinkImportService::new(
+        state.pool.clone(),
+        state.vault_path.clone(),
+        state.fetch_cache_root.clone(),
+    );
+    service.import_candidate(&preview, candidate_index).await
+}

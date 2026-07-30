@@ -33,6 +33,8 @@ pub fn run() {
             commands::list_skills,
             commands::delete_skill,
             commands::list_skill_versions,
+            commands::preview_link,
+            commands::import_link_candidate,
             commands::list_deployments,
             commands::plan_deployment,
             commands::execute_deployment,

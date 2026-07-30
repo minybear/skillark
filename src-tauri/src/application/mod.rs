@@ -5,6 +5,7 @@ pub mod bootstrap;
 pub mod disabled_agents;
 pub mod execute_deployment;
 pub mod import_skill;
+pub mod link_bridge;
 pub mod plan_deployment;
 pub mod resolve_targets;
 pub mod skill_detail;

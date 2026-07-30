@@ -10,6 +10,7 @@ use std::path::{Path, PathBuf};
 
 pub mod local_dir;
 pub mod zip;
+pub mod git;
 
 pub use local_dir::LocalDirectorySource;
 pub use zip::ZipSource;

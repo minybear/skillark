@@ -185,6 +185,20 @@ export const I18N = {
   create: { en: "Create", zh: "创建" },
   noWorkspaces: { en: "No project workspaces yet.", zh: "暂无项目工作区。" },
   globalWs: { en: "Global (user-level)", zh: "全局（用户级）" },
+
+  // v0.2 Link Bridge
+  importLink: { en: "Import from link", zh: "从链接导入" },
+  linkPlaceholder: {
+    en: "https://github.com/owner/repo or /tree/main/subdir",
+    zh: "https://github.com/owner/repo 或 /tree/main/subdir",
+  },
+  previewLink: { en: "Preview", zh: "预览" },
+  previewing: { en: "Fetching & scanning…", zh: "正在拉取并扫描…" },
+  linkPreviewHeading: { en: "Found skills", zh: "发现的技能" },
+  linkRemote: { en: "Source", zh: "来源" },
+  linkRevision: { en: "Revision", zh: "版本" },
+  linkNoCandidates: { en: "No skills found in this repository.", zh: "该仓库中未发现技能。" },
+  importSelected: { en: "Import", zh: "导入" },
 } as const;
 
 // Signal type display names

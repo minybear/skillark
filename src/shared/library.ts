@@ -151,3 +151,18 @@ export type SkillDetail = {
   skillMd: string | null;
   files: FileEntry[];
 };
+
+// v0.2 Link Bridge — paste a Git link → preview candidates → import.
+export type LinkCandidate = {
+  name: string;
+  version: string;
+  description: string;
+  relativePath: string;
+};
+
+export type LinkPreview = {
+  token: string;
+  remote: string;
+  resolvedRevision: string;
+  candidates: LinkCandidate[];
+};

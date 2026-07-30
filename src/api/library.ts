@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import type {
   Deployment,
   ExecutionReport,
+  LinkPreview,
   Operation,
   Plan,
   PlanRequest,
@@ -30,6 +31,15 @@ export async function importSkillFromDirectory(path: string) {
 
 export async function importSkillFromZip(path: string) {
   return invoke("import_skill_from_zip", { path });
+}
+
+// v0.2 Link Bridge
+export async function previewLink(link: string): Promise<LinkPreview> {
+  return invoke<LinkPreview>("preview_link", { link });
+}
+
+export async function importLinkCandidate(token: string, candidateIndex: number) {
+  return invoke("import_link_candidate", { token, candidateIndex });
 }
 
 export async function listDeployments(): Promise<Deployment[]> {

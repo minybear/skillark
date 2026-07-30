@@ -4,11 +4,13 @@
 //! Tauri's managed state. It owns the SQLite pool and the on-disk vault root.
 
 use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
 
 use sqlx::SqlitePool;
 
 use crate::{
     adapters::sqlite,
+    application::link_bridge::LinkPreview,
     repositories::{DeploymentRepository, OperationRepository, SkillRepository, WorkspaceRepository},
 };
 
@@ -75,6 +77,11 @@ pub fn hash_prefix(content_hash: &str) -> &str {
 pub struct AppState {
     pub pool: SqlitePool,
     pub vault_path: PathBuf,
+    pub fetch_cache_root: PathBuf,
+    /// v0.2 Link Bridge: server-side store of fetched previews, keyed by a
+    /// one-time token returned to the UI. Keeps the fetched working tree alive
+    /// between preview and import and avoids leaking temp paths to the frontend.
+    pub link_previews: Arc<Mutex<std::collections::HashMap<String, LinkPreview>>>,
 }
 
 impl AppState {
@@ -100,13 +107,42 @@ impl AppState {
         std::fs::create_dir_all(&vault_path)
             .map_err(|e| format!("create vault {}: {e}", vault_path.display()))?;
 
-        Ok(Self { pool, vault_path })
+        let fetch_cache_root = dir.join("fetch-cache");
+        std::fs::create_dir_all(&fetch_cache_root)
+            .map_err(|e| format!("create fetch cache {}: {e}", fetch_cache_root.display()))?;
+
+        Ok(Self {
+            pool,
+            vault_path,
+            fetch_cache_root,
+            link_previews: Arc::new(Mutex::new(std::collections::HashMap::new())),
+        })
     }
 
     /// Construct against an already-open pool + vault (used by tests and the
     /// services layer).
     pub fn new(pool: SqlitePool, vault_path: PathBuf) -> Self {
-        Self { pool, vault_path }
+        let fetch_cache_root = vault_path.join("_fetch-cache");
+        std::fs::create_dir_all(&fetch_cache_root).ok();
+        Self {
+            pool,
+            vault_path,
+            fetch_cache_root,
+            link_previews: Arc::new(Mutex::new(std::collections::HashMap::new())),
+        }
+    }
+
+    /// Take a preview out of the store (consumes it on import).
+    pub fn take_link_preview(&self, token: &str) -> Option<LinkPreview> {
+        self.link_previews.lock().ok()?.remove(token)
+    }
+    /// Stash a preview and return the token that identifies it.
+    pub fn store_link_preview(&self, preview: LinkPreview) -> String {
+        let token = uuid::Uuid::new_v4().to_string();
+        if let Ok(mut store) = self.link_previews.lock() {
+            store.insert(token.clone(), preview);
+        }
+        token
     }
 
     pub fn skills(&self) -> SkillRepository {

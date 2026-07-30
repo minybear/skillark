@@ -1,6 +1,7 @@
 pub mod agent;
 pub mod content_hash;
 pub mod deployment;
+pub mod link_bridge;
 pub mod operation;
 pub mod path_safety;
 pub mod skill;
